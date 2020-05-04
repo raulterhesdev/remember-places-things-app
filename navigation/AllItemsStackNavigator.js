@@ -4,6 +4,7 @@ import {createStackNavigator} from '@react-navigation/stack';
 
 import AllItemsScreen , {allItemsOptions} from '../screens/Items/AllItemsScreen';
 import EditNewItemScreen , {editNewOptions} from '../screens/Items/EditNewItemScreen';
+import MapScreen, {mapScreenOptions} from '../screens/Items/MapScreen' ;
 
 
 import {defaultNavOptions} from './config/defaultStackNavigationOptions';
@@ -26,7 +27,11 @@ export const AllItemsNavigator = () => {
          component={EditNewItemScreen}
          options={editNewOptions}
          />
-
+         <AllItemsStackNavigator.Screen 
+         name="Map"
+         component={MapScreen}
+         options={mapScreenOptions}
+         />
          
       </AllItemsStackNavigator.Navigator>
    )

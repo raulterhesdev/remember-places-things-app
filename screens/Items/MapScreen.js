@@ -1,7 +1,6 @@
 import React, { useState , useEffect, useCallback } from 'react'
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native'
 import MapView, {Marker} from 'react-native-maps';
-
 import {HeaderButtons, Item} from 'react-navigation-header-buttons';
 
 import * as Location from 'expo-location';
@@ -13,15 +12,19 @@ import HeaderButton from '../../components/UI/HeaderButton';
 
 const MapScreen = (props) => {
    const routeParams = props.route.params ? props.route.params : {};
-   // const readonly = props.navigation.getParam('readonly');
+   const editLocation = routeParams.editLocation;
+   const editMode = routeParams.editMode;
    
+   let initialLocation = editLocation ? editLocation : null
+
    let initialMapRegion = {
-      latitude: 37.7,
-      longitude: -122.43,
+      latitude: initialLocation ? initialLocation.lat: 37.7,
+      longitude: initialLocation ? initialLocation.lng:-122.43,
       latitudeDelta: 0.0922,
       longitudeDelta: 0.0421
    }
-   const [selectedLocation, setSelectedLocation] = useState();
+
+   const [selectedLocation, setSelectedLocation] = useState(initialLocation);
    const [mapRegion, setMapRegion] = useState(initialMapRegion);
 
    const onRegionChangeHandler = (region) => {
@@ -67,9 +70,6 @@ const MapScreen = (props) => {
    },[setSelectedLocation])
 
    const selectLocationHandler = (event) => {
-      // if(readonly) {
-      //    return;
-      // }
       setSelectedLocation({
          lat:event.nativeEvent.coordinate.latitude,
          lng:event.nativeEvent.coordinate.longitude
@@ -81,13 +81,9 @@ const MapScreen = (props) => {
          //show alert
          return;
       }
-      props.navigation.navigate('EditNewItem', {pickedLocation: selectedLocation});
-   }, [selectedLocation])
+      props.navigation.navigate('EditNewItem', {pickedLocation: selectedLocation, editMode: editMode});
+   }, [selectedLocation, editMode])
 
-   useEffect(() => {
-      getLocationHandler();
-      
-   }, [getLocationHandler])
 
    useEffect(() => {
       props.navigation.setOptions({
@@ -116,6 +112,7 @@ const MapScreen = (props) => {
          longitude: selectedLocation.lng
       }
    }
+   
    return (
       <MapView 
          region={mapRegion} 

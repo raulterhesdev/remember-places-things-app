@@ -7,7 +7,7 @@ import MapPreview from './MapPreview';
 const LocationSelector = (props) => {
    const [location, setLocation] = useState();
 
-   const {onLocationPicked} = props;
+   const {onLocationPicked, editMode, currentLocation} = props;
    const routeParams = props.route.params ? props.route.params : {};
    const pickedLocation = routeParams ? routeParams.pickedLocation: null;
 
@@ -18,17 +18,17 @@ const LocationSelector = (props) => {
       }
    }, [pickedLocation, onLocationPicked])
 
-
-   const pickOnMapHandler = () => {
-      props.navigation.navigate('Map');
-   }
-
+   useEffect(() => {
+      if(editMode === true)
+         setLocation(currentLocation)
+   })
+   
    return (
       <View style={styles.location}>
          <MapPreview 
             location={location} 
             style={styles.mapPreview} 
-            onPress={pickOnMapHandler}
+            onPress={props.mapPicker}
          >
          <Text style={styles.text}>No location chosen yet! </Text>
          <Text style={styles.text}>Click Here to Open the Map! </Text>

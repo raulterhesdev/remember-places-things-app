@@ -1,13 +1,14 @@
-import React, {useState} from 'react'
-import { StyleSheet, Text, View , Button, Image, Alert} from 'react-native'
+import React, {useState, useEffect} from 'react'
+import { StyleSheet, View , Alert} from 'react-native'
 import Colors from '../../constants/Colors'
 import * as ImagePicker from 'expo-image-picker';
 import * as Permissions from 'expo-permissions';
 import ButtonIconText from './ButtonIconText';
 
 const ImageSelector = (props) => {
-
    const [image, setImage] = useState()
+   const {onImageTaken, editMode, currentImage} = props;
+
    const verifyPermissions = async () => {
       const result = await Permissions.askAsync(Permissions.CAMERA, Permissions.CAMERA_ROLL);
 
@@ -47,8 +48,13 @@ const ImageSelector = (props) => {
       })
 
       setImage(image.uri);
-      props.onImageTaken(image.uri);
+      onImageTaken(image.uri);
    }
+
+   useEffect(() => {
+      if(editMode === true)
+         setImage(currentImage)
+   })
 
    return (
       <View style={styles.imagePicker}>
@@ -66,12 +72,7 @@ const ImageSelector = (props) => {
                text="Open Gallery"
                />
          </View>
-         <View style={styles.imagePreview}>
-            {!image
-            ? <Text style={styles.text}>No image picked yet</Text>
-            : <Image style={styles.image} source={{uri: image}}/>
-            }
-         </View>
+         
       </View>
    )
 }
@@ -84,27 +85,10 @@ const styles = StyleSheet.create({
       alignItems: 'center',
       marginBottom:5
    },
-   imagePreview: {
-      width: '100%',
-      height:200,
-      marginBottom: 10,
-      justifyContent: 'center',
-      alignItems: 'center',
-      borderColor: '#ccc',
-      borderWidth: 1
-   },
-   image: {
-      width: '100%',
-      height:'100%'
-   },
    buttonContainer: {
       marginVertical: 10,
       width: '100%',
       flexDirection: 'row',
       justifyContent: 'space-between'
-   },
-   text:{
-      fontFamily: 'open-sans',
-      color: Colors.primary
    }
 })

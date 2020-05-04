@@ -1,35 +1,40 @@
 import React from 'react'
 import { StyleSheet, Text, View, TouchableOpacity, TouchableNativeFeedback, Platform, Image } from 'react-native'
+import { useSelector } from 'react-redux';
+
 import  Colors  from '../../constants/Colors'
 
 import CardButton from '../UI/CardButton';
 
+//Shall be edited later to provide a better look
 
 
 const ItemCard = (props) => {
+   const individualItem = useSelector(state => state.items.items).filter(item => item.id === props.id)[0];
+   let itemColor;
+   itemColor = individualItem.color;
    let Touchable = TouchableOpacity;
    if(Platform.OS = 'android' && Platform.Version >= 21){
       Touchable = TouchableNativeFeedback;
    }
    return (
-      <View style={styles.card}>
+      <View style={{...styles.card, ...{borderRightColor: itemColor}}}>
          <Touchable style={styles.touch} onPress={props.cardPress}>
             <View>
             <View style={styles.details}>
-               <View style={styles.imageContainer}>
+               {individualItem.imageUri ? <View style={styles.imageContainer}>
                   <Image 
-                     source={{uri: 'https://miro.medium.com/max/1200/1*mk1-6aYaf_Bes1E3Imhc0A.jpeg'}}
+                     source={{uri: individualItem.imageUri}}
                      style={styles.image}/>
-               </View>
+               </View> : null}
                <View style={styles.markers}>
-                  <CardButton iconName='pin' size={16} color={Colors.accent} />
-                  <CardButton iconName='text' size={16} color={Colors.accent}/>
-                  <CardButton iconName='calendar-alert' size={16} color={Colors.accent} />
-                  
+                  {individualItem. location ? <CardButton iconName='pin' size={16} color={itemColor} /> : null}
+                  {individualItem.description ? <CardButton iconName='text' size={16} color={itemColor}/> : null}
+                  {individualItem.reminderDate ? <CardButton iconName='calendar-alert' size={16} color={itemColor} /> : null}
                </View>
             </View>
             <View style={styles.titleContainer}>
-               <Text style={styles.title}>{props.title}</Text>
+               <Text style={styles.title}>{individualItem.title}</Text>
             </View>
             </View>
          </Touchable>
@@ -49,8 +54,8 @@ const styles = StyleSheet.create({
       marginHorizontal: 5,
       backgroundColor: Colors.light,
       elevation: 10,
-      borderRightWidth: 4,
-      borderRightColor: Colors.accent
+      borderRightWidth: 10,
+      
    },
 
    details: {

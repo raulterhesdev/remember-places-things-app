@@ -4,6 +4,7 @@ import  Colors  from '../../constants/Colors';
 
 const Input = (props) => {
    const [focus, setFocus] = useState(false);
+
    return (
       <View style={styles.inputContainer}>
          <Text style={styles.label}>{props.label}</Text>
@@ -16,6 +17,7 @@ const Input = (props) => {
          onFocus={() => {setFocus(true)}}
          onBlur={() => {setFocus(false)}}
          />
+         {props.error && <Text style={styles.error}>{props.errorMessage}</Text>}
       </View>
    )
 }
@@ -50,5 +52,9 @@ const styles = StyleSheet.create({
       padding: 15,
       backgroundColor: Colors.light,
       color: Colors.dark
+   },
+   error: {
+      color: 'red',
+      fontFamily: 'open-sans'
    }
 })

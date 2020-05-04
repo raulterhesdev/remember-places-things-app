@@ -13,6 +13,6 @@ export default {
    red: '#FF4136',
    purple: '#B10DC9',
    fuchsia: '#F012BE',
-   default: Colors.accent
+   default: Colors.accent 
 
 }

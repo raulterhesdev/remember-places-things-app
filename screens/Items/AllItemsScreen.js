@@ -1,18 +1,20 @@
 import React from 'react'
 import { StyleSheet, Text, View, FlatList } from 'react-native'
+import { useSelector, useDispatch } from 'react-redux';
 
 import ItemCard from '../../components/Items/ItemCard';
 
-
-import ITEMS from '../../dummy-data/dummy-data';
+import * as tempActions from '../../shop/actions/tempActions';
 
 
 
 const AllItemsScreen = (props) => {
-   const allItems = ITEMS;
+   const dispatch = useDispatch();
+   const allItems = useSelector(state => state.items.items);
 
-   const onCardPressHandler = (id, title) => {
-      props.navigation.navigate('EditNewItem',{editMode: true, id:id, title:title})
+   const onCardPressHandler = (item) => {
+      dispatch(tempActions.setEditItem(item.id, item.title, item.description, item.location, item.imageUri, item.color, item.userID))
+      props.navigation.navigate('EditNewItem',{editMode: true, item: item})
    }
 
    return (
@@ -23,8 +25,8 @@ const AllItemsScreen = (props) => {
          keyExtractor={item=>item.id}
          data={allItems} 
          renderItem={itemData => <ItemCard 
-            title={itemData.item.title}
-            cardPress={() => {onCardPressHandler(itemData.item.id, itemData.item.title)}}
+            id={itemData.item.id}
+            cardPress={() => {onCardPressHandler(itemData.item)}}
             />}
          />
       </View>
