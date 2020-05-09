@@ -63,7 +63,8 @@ const EditNewItem = (props) => {
    }
 
    const saveButtonHandler = () => {
-      if(titleTouched && title.length === 0){
+      if(title.length === 0){
+         setTitleTouched(true)
          return
       }
       if(editMode){
@@ -77,7 +78,7 @@ const EditNewItem = (props) => {
       setLocation();
       setDescription('');
       setImagePath();
-      setColor();
+      setColor(Colors.accent);
    }
 
    const pickOnMapHandler = () => {
@@ -90,8 +91,10 @@ const EditNewItem = (props) => {
    
 
    useEffect(() => {
-      props.navigation.setParams({color: color}); //this causes the dev warning.HAVE TO FIX
       props.navigation.setOptions({
+         headerStyle: {
+            backgroundColor: color
+         },
          headerRight: () => (
             <View style={{flexDirection:'row'}}>
                <HeaderButtons HeaderButtonComponent={HeaderButton}>
@@ -153,17 +156,6 @@ const EditNewItem = (props) => {
             value={description}
             multiline={true}
             onChangeText={(text) => onDescriptionChangeHandler(text)}/>
-            <ImageSelector 
-            onImageTaken={imageTakenHandler} 
-            currentImage={imagePath}
-            editMode={editMode}
-            />
-            <View style={styles.imagePreview}>
-            {!imagePath
-            ? <Text style={styles.text}>No image picked yet</Text>
-            : <Image style={styles.image} source={{uri: imagePath}}/>
-            }
-            </View>
             <LocationSelector 
             navigation={props.navigation}
             route={props.route}
@@ -172,6 +164,19 @@ const EditNewItem = (props) => {
             editMode={editMode}
             mapPicker={pickOnMapHandler}
             />
+            <ImageSelector 
+            onImageTaken={imageTakenHandler} 
+            currentImage={imagePath}
+            editMode={editMode}
+            />
+            {imagePath 
+            ?  <View style={styles.imagePreview}>
+                  <Image style={styles.image} source={{uri: imagePath}}/>
+               </View>
+            : null
+            }
+            
+            
          </View>
       </ScrollView>
    )
@@ -224,8 +229,10 @@ const styles = StyleSheet.create({
       marginBottom: 10,
       justifyContent: 'center',
       alignItems: 'center',
-      borderColor: '#ccc',
-      borderWidth: 1
+      borderColor: Colors.primary,
+      borderWidth: 1,
+      borderRadius: 15,
+      overflow: 'hidden'
    },
    image: {
       width: '100%',
@@ -239,12 +246,9 @@ const styles = StyleSheet.create({
 
 export const editNewOptions = navData => {
    const routeParams = navData.route.params ? navData.route.params : {};
-   let bgColor = routeParams.color ? routeParams.color : Colors.accent;
    let editMode = routeParams.editMode ? routeParams.editMode : null;
    return {
       headerTitle: editMode ? 'Edit' : 'Add new item',
-      headerStyle: {
-         backgroundColor: bgColor
-      },
+      
    }
 }

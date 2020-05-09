@@ -1,37 +1,110 @@
-import React , {useState} from 'react'
+import React , {useState, useEffect , useCallback} from 'react'
 import { StyleSheet, Text, View, ScrollView } from 'react-native'
-import { HeaderButtons, Item }from 'react-navigation-header-buttons';
-
-import HeaderButton from '../../components/UI/HeaderButton';
-
+import { useFocusEffect } from '@react-navigation/native';
 import Colors from '../../constants/Colors';
 import SettingsSwitch from '../../components/UI/SettingsSwitch';
+import { useDispatch, useSelector } from 'react-redux';
+import * as userActions from '../../shop/actions/userActions';
+import {HeaderButtons, Item} from 'react-navigation-header-buttons';
+import HeaderButton from '../../components/UI/HeaderButton';
 
-const AllItemsScreen = (props) => {
-   const [darkMode, setDarkMode] = useState(false);
-   const [complexView, setComplexView] = useState(true);
-   const [cloudStorage, setCloudStorage] = useState(true);
+const ProfileScreen = (props) => {
+   const dispatch = useDispatch();
+   const switchState = useSelector(state => state.user.switchData)
+
+   const [darkMode, setDarkMode] = useState();
+   const [cardMode, setCardMode] = useState();
+   const [cloudStorage, setCloudStorage] = useState();
+   const [imageInCardView, setImageInCardView] = useState();
+
+
+   useEffect(() => {
+      setCardMode(switchState.cardMode)
+      setImageInCardView(switchState.imageInCardView)
+      setDarkMode(switchState.darkMode)
+      setCloudStorage(switchState.cloudStorage)
+   }, [])
+
+   useEffect(() => {
+      props.navigation.setOptions({
+         headerRight: () => (
+               <HeaderButtons HeaderButtonComponent={HeaderButton}>
+                  <Item 
+                  buttonStyle={styles.headerButton}
+                  title="Save" 
+                  iconName = 'save'
+                  onPress = {()=>{saveButtonHandler()}}/>
+               </HeaderButtons>
+         )
+      })
+      
+   }, [cardMode, darkMode, imageInCardView, cloudStorage]);
+
+   useFocusEffect(
+      useCallback(() => {
+         setCardMode(switchState.cardMode)
+         setImageInCardView(switchState.imageInCardView)
+         setDarkMode(switchState.darkMode)
+         setCloudStorage(switchState.cloudStorage)
+      }, [switchState])
+   );
+
+   const saveButtonHandler = () => {
+      dispatch(userActions.storeSwitches({
+         darkMode: darkMode,
+         cardMode: cardMode,
+         imageInCardView: imageInCardView,
+         cloudStorage: cloudStorage
+      }))
+   }
+
+   const switchChangeHandler = (switchName) => {
+      switch(switchName){
+         case 'darkMode':
+            setDarkMode(previousState => !previousState)
+            break;
+         case 'cardMode':
+            setCardMode(previousState => !previousState)
+            break;
+         case 'cloudStorage':
+            setCloudStorage(previousState => !previousState)
+            break;
+         case 'imageInCardView':
+            setImageInCardView(previousState => !previousState)
+            break;
+         default: break;
+      }
+      
+      
+   }
+
    return (
       <ScrollView style={styles.screen}>
          <Text style={styles.category}>User</Text>
          <Text style={styles.category}>Layout</Text>
          <SettingsSwitch 
-            text='Complex view'
-            value={complexView}
-            onValueChange={() => setComplexView(previousState => !previousState)}
-            hint="Complex view will display image and small icons for each item. Simple view shall only display the title"
+            text='Card view'
+            value={cardMode}
+            onValueChange={() => switchChangeHandler('cardMode')}
+            hint="Car view will display 2 column items with image. Disabling with display 1 column items with no image"
+            />
+         <SettingsSwitch 
+            text='Show image in Card view'
+            value={imageInCardView}
+            onValueChange={() => switchChangeHandler('imageInCardView')}
+
             />
          <Text style={styles.category}>Color Scheme</Text>
          <SettingsSwitch 
             text='Dark Mode'
             value={darkMode}
-            onValueChange={() => setDarkMode(previousState => !previousState)}
+            onValueChange={() => switchChangeHandler('darkMode')}
             />
          <Text style={styles.category}>Storage</Text>
          <SettingsSwitch 
             text='Cloud/Local Storage'
             value={cloudStorage}
-            onValueChange={() => setCloudStorage(previousState => !previousState)}
+            onValueChange={() => switchChangeHandler('cloudStorage')}
             hint="If checked items shall be stored on our servers so you can access them on multiple devices. If not we will only store the data on this device"
             />
          <Text style={styles.category}>Privacy Policy</Text>
@@ -39,7 +112,7 @@ const AllItemsScreen = (props) => {
    )
 }
 
-export default AllItemsScreen
+export default ProfileScreen
 
 const styles = StyleSheet.create({
    screen: {

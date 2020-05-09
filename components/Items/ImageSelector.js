@@ -83,7 +83,7 @@ const styles = StyleSheet.create({
    imagePicker: {
       width: '90%',
       alignItems: 'center',
-      marginBottom:5
+      marginVertical:5
    },
    buttonContainer: {
       marginVertical: 10,

@@ -24,6 +24,7 @@ const LocationSelector = (props) => {
    })
    
    return (
+      
       <View style={styles.location}>
          <MapPreview 
             location={location} 
@@ -42,7 +43,8 @@ export default LocationSelector
 
 const styles = StyleSheet.create({
    location: {
-      width: '90%',
+      width: '100%',
+      marginTop: 15
    },
    buttonContainer: {
       marginVertical: 5,
@@ -66,8 +68,10 @@ const styles = StyleSheet.create({
       marginBottom: 10,
       width: '100%',
       height: 200,
-      borderColor: '#ccc',
+      borderColor: Colors.primary,
       borderWidth: 1,
+      borderRadius: 15,
+      overflow: 'hidden'
    },
    text:{
       fontFamily: 'open-sans',
