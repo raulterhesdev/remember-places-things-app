@@ -7,10 +7,12 @@ import { useDispatch, useSelector } from 'react-redux';
 import * as userActions from '../../shop/actions/userActions';
 import {HeaderButtons, Item} from 'react-navigation-header-buttons';
 import HeaderButton from '../../components/UI/HeaderButton';
+import { DarkColors, LightColors } from '../../constants/Theme';
 
 const ProfileScreen = (props) => {
    const dispatch = useDispatch();
    const switchState = useSelector(state => state.user.switchData)
+   const darkModeFromRedux = switchState.darkMode;
 
    const [darkMode, setDarkMode] = useState();
    const [cardMode, setCardMode] = useState();
@@ -25,12 +27,13 @@ const ProfileScreen = (props) => {
       setCloudStorage(switchState.cloudStorage)
    }, [])
 
+   const buttonColor = darkModeFromRedux ? DarkColors.primary : LightColors.light
    useEffect(() => {
       props.navigation.setOptions({
          headerRight: () => (
                <HeaderButtons HeaderButtonComponent={HeaderButton}>
                   <Item 
-                  buttonStyle={styles.headerButton}
+                  buttonStyle={{...styles.headerButton,...{color:buttonColor}}}
                   title="Save" 
                   iconName = 'save'
                   onPress = {()=>{saveButtonHandler()}}/>
@@ -78,8 +81,9 @@ const ProfileScreen = (props) => {
       
    }
 
+   const screenStyle = darkModeFromRedux ? styles.screenDark : styles.screenLight 
    return (
-      <ScrollView style={styles.screen}>
+      <ScrollView style={{...styles.screen, ...screenStyle}}>
          <Text style={styles.category}>User</Text>
          <Text style={styles.category}>Layout</Text>
          <SettingsSwitch 
@@ -99,6 +103,7 @@ const ProfileScreen = (props) => {
             text='Dark Mode'
             value={darkMode}
             onValueChange={() => switchChangeHandler('darkMode')}
+            hint="When changing this, some items may display the wrong color. Please restart the app if this happens"
             />
          <Text style={styles.category}>Storage</Text>
          <SettingsSwitch 
@@ -117,8 +122,14 @@ export default ProfileScreen
 const styles = StyleSheet.create({
    screen: {
       flex:1,
-      marginTop: 30,
-      marginHorizontal: 35
+      paddingTop: 30,
+      paddingHorizontal: 35
+   },
+   screenDark: {
+      backgroundColor: DarkColors.dark
+   },
+   screenLight: {
+      backgroundColor: LightColors.light
    },
    category: {
       fontFamily: 'open-sans-bold',

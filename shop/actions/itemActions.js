@@ -1,6 +1,7 @@
 export const ADD_ITEM = 'ADD_ITEM';
 export const LOAD_ITEMS = 'LOAD_ITEMS';
 export const EDIT_ITEM = 'EDIT_ITEM';
+export const DELETE_ITEM = 'DELETE_ITEM';
 
 
 export const addItem = (title, description, location, imageUri, color, userID) => {
@@ -33,6 +34,15 @@ export const editItem = (title, description, location, imageUri, color, userID, 
             color: color,
             userID: userID
          }
+      })
+   }
+}
+
+export const deleteItem = (id) => {
+   return dispatch => {
+      dispatch({
+         type:DELETE_ITEM,
+         id: id,
       })
    }
 }

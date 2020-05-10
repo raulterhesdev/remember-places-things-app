@@ -2,12 +2,16 @@ import React from 'react'
 import { StyleSheet, Text, View , Switch} from 'react-native'
 
 import Colors from '../../constants/Colors';
+import { useSelector } from 'react-redux';
+import { DarkColors, LightColors } from '../../constants/Theme';
 
 const SettingsSwitch = (props) => {
+   const darkMode = useSelector(state => state.user.switchData.darkMode)
+   const textStyle = darkMode ? styles.textDark : styles.textLight
    return (
       <View style={styles.layout}>
          <View style={styles.switchContainer}>
-            <Text style={styles.switchText}>{props.text}</Text>
+            <Text style={{...styles.switchText,...textStyle}}>{props.text}</Text>
             <Switch
             trackColor={{ false: "#767577", true: Colors.accent }}
             thumbColor={Colors.primary}
@@ -16,7 +20,7 @@ const SettingsSwitch = (props) => {
             value={props.value}
             />
          </View>
-         <Text style={styles.switchHint}>{props.hint}</Text>
+         <Text style={{...styles.switchHint,...textStyle}}>{props.hint}</Text>
       </View>
    )
 }
@@ -36,6 +40,12 @@ const styles = StyleSheet.create({
    switchText: {
       fontFamily: 'open-sans',
       fontSize: 15
+   },
+   textDark: {
+      color: DarkColors.white
+   },
+   textLight: { 
+      color: LightColors.dark
    },
    switchHint: {
       fontFamily: 'open-sans',

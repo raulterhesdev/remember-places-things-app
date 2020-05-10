@@ -7,10 +7,15 @@ import * as Location from 'expo-location';
 import * as Permissions from 'expo-permissions';
 
 import HeaderButton from '../../components/UI/HeaderButton';
+import { useSelector } from 'react-redux';
+import { DarkColors , LightColors} from '../../constants/Theme';
 
 
 
 const MapScreen = (props) => {
+   const switchData =  useSelector(state => state.user.switchData)
+   const darkMode = switchData.darkMode;
+
    const routeParams = props.route.params ? props.route.params : {};
    const editLocation = routeParams.editLocation;
    const editMode = routeParams.editMode;
@@ -84,25 +89,27 @@ const MapScreen = (props) => {
       props.navigation.navigate('EditNewItem', {pickedLocation: selectedLocation, editMode: editMode});
    }, [selectedLocation, editMode])
 
-
+   const buttonColor = darkMode ? DarkColors.primary : LightColors.light;
+   const locateColor = darkMode ? DarkColors.accent : LightColors.light;
    useEffect(() => {
       props.navigation.setOptions({
          headerRight:() => <View style={{flexDirection:'row',marginRight:10}}>
             <HeaderButtons HeaderButtonComponent={HeaderButton}>
                <Item 
-               buttonStyle={styles.headerButton}
+               buttonStyle={{...styles.headerButton, ...{color:locateColor}}}
                title="Color" 
                iconName = 'my-location'
                onPress = {getLocationHandler}
                />
             </HeaderButtons>
             <TouchableOpacity style={styles.headerButton} onPress={saveLocationHandler}>
-               <Text style={styles.headerButtonText}>Save</Text>
+               <Text style={{...styles.headerButtonText, ...{color:buttonColor}}}
+               >Save</Text>
             </TouchableOpacity>
          </View>
       })
       
-   }, [saveLocationHandler, getLocationHandler]);
+   }, [saveLocationHandler, getLocationHandler,buttonColor, locateColor]);
 
    let markerCoordinates;
 

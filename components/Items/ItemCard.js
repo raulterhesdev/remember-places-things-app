@@ -3,6 +3,7 @@ import { StyleSheet, Text, View, TouchableOpacity, TouchableNativeFeedback, Plat
 import { useSelector } from 'react-redux';
 
 import  Colors  from '../../constants/Colors'
+import {LightColors, DarkColors} from '../../constants/Theme';
 
 import CardButton from '../UI/CardButton';
 
@@ -21,24 +22,29 @@ const ItemCard = (props) => {
    const switchData =  useSelector(state => state.user.switchData)
    const cardMode = switchData.cardMode;
    const imgInCardMode = switchData.imageInCardView;
+   const darkMode = switchData.darkMode;
 
    const showImage = individualItem.imageUri && cardMode && imgInCardMode;
    const markersWithImage = individualItem.imageUri && cardMode && imgInCardMode;
+
+   let cardStyle = darkMode ?  styles.cardDark : styles.cardLight
+   let textStyle  = darkMode ?  styles.titleDark : styles.titleLight
+
    return (
-      <View style={{...styles.card, ...{borderRightColor: itemColor}}}>
+      <View style={{...cardStyle, ...styles.card, ...{borderRightColor: itemColor}}}>
          <Touchable onPress={props.cardPress}>
             <View style={styles.container}>
                <View style={{...styles.titleContainer, ...{borderColor: itemColor}}}>
-                  <Text style={styles.title}>
+                  <Text style={{...styles.title,...textStyle}}>
                      {individualItem.title}
                      </Text>
                </View>
                <View style={styles.additionalContainer}>
                   <View style={styles.info}>
                      <View style={markersWithImage  ? styles.markersWithImage : styles.markersWithoutImage}>
-                        {individualItem.location ? <CardButton iconName='pin' size={16} color={itemColor} /> : null}
+                        {individualItem.location ? <CardButton iconName='map-marker-radius' size={18} color={itemColor} /> : null}
                         {/* {individualItem.description ? <CardButton iconName='text' size={16} color={itemColor}/> : null} */}
-                        {individualItem.imageUri && (!cardMode || !imgInCardMode) ? <CardButton iconName='image' size={16} color={itemColor} /> : null}
+                        {individualItem.imageUri && (!cardMode || !imgInCardMode) ? <CardButton iconName='image' size={18} color={itemColor} /> : null}
                         {/* {individualItem.reminderDate ? <CardButton iconName='calendar-alert' size={16} color={itemColor} /> : null} */}
                         </View>
                      </View>
@@ -48,12 +54,12 @@ const ItemCard = (props) => {
                         style={styles.image}/>
                   </View> : null}
                </View>
-               <View style={styles.descriptionContainer}>
-                  <Text style={styles.description}
+               {individualItem.description !== '' && <View style={styles.descriptionContainer}>
+                  <Text style={{...styles.description,...textStyle}}
                      numberOfLines={3}>
                      {individualItem.description}
                   </Text>
-               </View>
+               </View>}
             </View>
          </Touchable>
       </View>
@@ -70,9 +76,14 @@ const styles = StyleSheet.create({
       flex:1,
       marginVertical: 8,
       marginHorizontal: 5,
-      backgroundColor: Colors.light,
       elevation: 10,
       borderRightWidth: 10,
+   },
+   cardDark: {
+      backgroundColor: DarkColors.dark
+   },
+   cardLight: {
+      backgroundColor: LightColors.light,
    },
    container: {
       flex:1, 
@@ -86,6 +97,12 @@ const styles = StyleSheet.create({
    },
    title: {
       fontFamily: 'open-sans-bold'
+   },
+   titleDark:{
+      color: DarkColors.white
+   },
+   titleLight:{
+      color:'black'
    },
    descriptionContainer: {
       marginTop: 5,
@@ -127,32 +144,4 @@ const styles = StyleSheet.create({
       justifyContent: 'space-evenly',
       alignItems: 'center'
    }
-   // details: {
-   //    flex: 1,
-   //    flexDirection: 'row',
-   //    padding: 10
-   // },
-   // imageContainer: {
-   //    padding: 5
-   // },
-   // image: {
-   //    width: 100,
-   //    height: 100,
-   //    borderRadius: 10,
-   // },
-   // markers: {
-   //    flex: 1,
-   //    justifyContent: 'space-around',
-   //    alignItems: 'center',
-   //    paddingLeft: 5
-   // },
-   // titleContainer: {
-   //    flex: 1,
-   //    padding: 10
-   // },
-   // title:{
-   //    fontFamily: 'open-sans-bold',
-   //    textAlign: 'right',
-   //    color: Colors.dark
-   // }
 })

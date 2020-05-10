@@ -6,6 +6,7 @@ import {AppLoading} from 'expo';
 import * as Font from 'expo-font';
 import ReduxThunk from 'redux-thunk';
 
+
 import itemReducer from './shop/reducers/itemsReducer';
 import userReducer from './shop/reducers/userReducer';
 import tempReducer from './shop/reducers/tempReducer';

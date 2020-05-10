@@ -1,18 +1,26 @@
 import React, { useState } from 'react'
 import { StyleSheet, Text, View , TextInput} from 'react-native'
 import  Colors  from '../../constants/Colors';
+import {DarkColors, LightColors} from '../../constants/Theme';
+import { useSelector } from 'react-redux';
 
 const Input = (props) => {
    const [focus, setFocus] = useState(false);
+   const darkMode =  useSelector(state => state.user.switchData.darkMode)
 
+   let inputStyle = {
+      ...focus ? styles.inputFocused : styles.input
+   }
+   inputStyle = {...inputStyle, ...darkMode ? styles.inputDark : styles.inputLight}
    return (
       <View style={styles.inputContainer}>
          <Text style={styles.label}>{props.label}</Text>
          <TextInput 
-         style={focus ? styles.inputFocused : styles.input}
+         style={inputStyle}
          value={props.value}
          onChangeText={props.onChangeText}
          placeholder= {props.label}
+         placeholderTextColor={darkMode ? DarkColors.primary : LightColors.primary}
          multiline={props.multiline}
          onFocus={() => {setFocus(true)}}
          onBlur={() => {setFocus(false)}}
@@ -42,7 +50,6 @@ const styles = StyleSheet.create({
       borderWidth: 1,
       borderRadius: 10,
       padding: 15,
-      color: Colors.dark,
       marginBottom: 1
    },
    inputFocused:{
@@ -50,8 +57,13 @@ const styles = StyleSheet.create({
       borderWidth: 2,
       borderRadius: 10,
       padding: 15,
-      backgroundColor: Colors.light,
-      color: Colors.dark
+      
+   },
+   inputLight: {
+      color: LightColors.dark
+   },
+   inputDark: {
+      color: DarkColors.white
    },
    error: {
       color: 'red',

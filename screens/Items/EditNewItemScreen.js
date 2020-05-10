@@ -1,5 +1,5 @@
 import React, { useState, useEffect  } from 'react'
-import { StyleSheet, Button, View, Modal, Text, Image} from 'react-native'
+import { StyleSheet, Button, View, Modal, Text, Image, Dimensions} from 'react-native'
 import {useDispatch, useSelector} from 'react-redux';
 import {HeaderButtons, Item} from 'react-navigation-header-buttons';
 import { ScrollView } from 'react-native-gesture-handler';
@@ -11,16 +11,19 @@ import Colors from '../../constants/Colors';
 import PickerColors from '../../constants/PickerColors';
 import LocationSelector from '../../components/Items/LocationSelector';
 import ImageSelector from '../../components/Items/ImageSelector'
+import DangerButton from '../../components/UI/DangerButton';
 
+import {DarkColors, LightColors} from '../../constants/Theme';
 import * as itemsActions from '../../shop/actions/itemActions';
 
 
 const EditNewItem = (props) => {
    const dispatch = useDispatch();
-
+   
    const routeParams = props.route.params ? props.route.params : {};
    let editMode = routeParams.editMode ? routeParams.editMode : null;
    const editItem = useSelector(state => state.temp.editItem);
+   const darkMode =  useSelector(state => state.user.switchData.darkMode)
 
    const [modalVisible, setModalVisible] = useState(false)
 
@@ -88,25 +91,43 @@ const EditNewItem = (props) => {
       });
    }
 
-   
+   const onDangerButtonHandler = () => {
+      if(editMode){
+         dispatch(itemsActions.deleteItem(editItem.id))
+         setTitle('');
+         setTitleTouched(false);
+         setLocation();
+         setDescription('');
+         setImagePath();
+         setColor(Colors.accent);
+         props.navigation.navigate('AllItems');
+      }else {
+         setTitle('');
+         setTitleTouched(false);
+         setLocation();
+         setDescription('');
+         setImagePath();
+         setColor(Colors.accent);
+      }
+   }
 
    useEffect(() => {
       props.navigation.setOptions({
          headerStyle: {
-            backgroundColor: color
+            backgroundColor: darkMode ? DarkColors.dark : LightColors.primary
          },
          headerRight: () => (
             <View style={{flexDirection:'row'}}>
                <HeaderButtons HeaderButtonComponent={HeaderButton}>
                   <Item 
-                  buttonStyle={styles.headerButton}
+                  buttonStyle={{...styles.headerButton,...{color:color}}}
                   title="Color" 
                   iconName = 'color-lens'
                   onPress = {() => {setModalVisible(true)}}/>
                </HeaderButtons>
                <HeaderButtons HeaderButtonComponent={HeaderButton}>
                   <Item 
-                  buttonStyle={styles.headerButton}
+                  buttonStyle={{...styles.headerButton,...{color:darkMode ? DarkColors.primary : LightColors.light}}}
                   title="Save" 
                   iconName = 'save'
                   onPress = {()=>{saveButtonHandler()}}/>
@@ -117,15 +138,16 @@ const EditNewItem = (props) => {
       
    }, [setModalVisible, color, title, description, location, imagePath]);
    
-   
+   const modalStyle = darkMode ? styles.modalDark : styles.modalLight
+   const screenStyle = darkMode ? styles.screenDark : styles.screenLight
    return (
       <ScrollView>
-         <View style={styles.screen}>
+         <View style={{...screenStyle, ...styles.screen}}>
             <Modal
                animationType="fade"
                transparent={true}
                visible={modalVisible}>
-               <View style={styles.modal}>
+               <View style={{...styles.modal, ...modalStyle}}>
                   <Text style={styles.close} onPress={() => {setModalVisible(false)}}>x</Text>
                   <ColorPicker 
                      onChangeColor={onColorChangeHandler}
@@ -169,14 +191,20 @@ const EditNewItem = (props) => {
             currentImage={imagePath}
             editMode={editMode}
             />
+            <View style={styles.imagePreview}>
             {imagePath 
-            ?  <View style={styles.imagePreview}>
-                  <Image style={styles.image} source={{uri: imagePath}}/>
-               </View>
-            : null
+            ? <Image style={styles.image} source={{uri: imagePath}}/>
+            : <View>
+               <Text style={styles.text}>No image selected. </Text>
+               <Text style={styles.text}>Press one of the above buttons to select one</Text>
+            </View>
+               
             }
-            
-            
+            </View>
+            <DangerButton 
+            onPress={() => onDangerButtonHandler()}
+            text={editMode ? "Delete" : "Reset"}
+            />
          </View>
       </ScrollView>
    )
@@ -188,11 +216,16 @@ const styles = StyleSheet.create({
    screen: {
       flex:1,
       alignItems:'center',
-      padding: 20
+      padding: 20,
+   },
+   screenLight: {
+      backgroundColor: LightColors.light
+   },
+   screenDark:{
+      backgroundColor: DarkColors.dark
    },
    modal: {
       margin: 20,
-      backgroundColor: "white",
       borderRadius: 20,
       padding: 35,
       alignItems: "center",
@@ -204,6 +237,14 @@ const styles = StyleSheet.create({
       shadowOpacity: 0.25,
       shadowRadius: 3.84,
       elevation: 5
+   },
+   modalLight: {
+      backgroundColor: LightColors.light,
+   },
+   modalDark: {
+      backgroundColor: DarkColors.dark,
+      borderColor: DarkColors.primary,
+      borderWidth:1
    },
    buttonContainer: {
       marginVertical: 10,
@@ -225,7 +266,8 @@ const styles = StyleSheet.create({
    },
    imagePreview: {
       width: '100%',
-      height:200,
+      minHeight: 200,
+      maxHeight: 400,
       marginBottom: 10,
       justifyContent: 'center',
       alignItems: 'center',
@@ -240,7 +282,8 @@ const styles = StyleSheet.create({
    },
    text:{
       fontFamily: 'open-sans',
-      color: Colors.primary
+      color: Colors.primary,
+      textAlign: 'center'
    }
 })
 

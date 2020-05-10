@@ -3,9 +3,9 @@ import {LightColors, DarkColors} from '../../constants/Theme';
 
 const initialState = {
    switchData: {
-      darkMode: false,
-      cardView: true,
-      imageInCardView: true,
+      darkMode: true,
+      cardMode: true,
+      imageInCardView: false,
       cloudStorage: true
    }
 };
