@@ -9,6 +9,7 @@ import { MaterialCommunityIcons } from '@expo/vector-icons';
 import {AllItemsNavigator} from './AllItemsStackNavigator';
 import {CreateItemNavigator} from './CreateItemStackNavigator';
 import {ProfileNavigator} from './ProfileStackNavigator';
+
 import Colors from '../constants/Colors';
 import {DarkColors, LightColors} from '../constants/Theme';
 import { useSelector } from 'react-redux';
@@ -20,8 +21,10 @@ const ItemsTabNavigator = createMaterialBottomTabNavigator();
 
 
 export const ItemsNavigator = (props) => {
+   
    const switchData =  useSelector(state => state.user.switchData)
    const darkMode = switchData.darkMode;
+   // const darkMode = true;
    const backgroundColor = darkMode ? DarkColors.dark : LightColors.primary
    const activeColor = darkMode ? DarkColors.primary : LightColors.light
    return (

@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useCallback } from 'react'
 import { StyleSheet, Text, View, FlatList } from 'react-native'
 import { useSelector, useDispatch } from 'react-redux';
-
+import * as itemActions from '../../shop/actions/itemActions'
 import ItemCard from '../../components/Items/ItemCard';
 
 import * as tempActions from '../../shop/actions/tempActions';
@@ -14,17 +14,34 @@ const AllItemsScreen = (props) => {
    const allItems = useSelector(state => state.items.items);
    const switchData =  useSelector(state => state.user.switchData)
    const cardMode = switchData.cardMode;
-
    const darkMode = switchData.darkMode;
+   const userId = useSelector(state => state.user.userData.uid)
+   const [isLoading, setIsLoading] = useState(false);
+   const [error, setError] = useState()
+
+   const loadItems = useCallback(async () => {
+      setError(null);
+      setIsLoading(true)
+      try {
+         await dispatch(itemActions.fetchItems(userId));
+      } catch (err) {
+         setError(err.message);
+      }
+      setIsLoading(false)
+   },[dispatch, setIsLoading, setError]);
+
+   useEffect(() => {
+      setIsLoading(true);
+      loadItems().then(() => setIsLoading(false));
+   }, [dispatch, loadItems]);
 
    const onCardPressHandler = (item) => {
       dispatch(tempActions.setEditItem(item.id, item.title, item.description, item.location, item.imageUri, item.color, item.userID))
       props.navigation.navigate('EditNewItem',{editMode: true, item: item})
    }
 
+
    let screenStyle = darkMode ?  styles.screenDark : styles.screenLight
-
-
    let textColor = darkMode ? DarkColors.primary : LightColors.dark 
    return (
       <View style={{...screenStyle, ...styles.screen}}>

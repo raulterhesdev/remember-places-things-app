@@ -8,15 +8,15 @@ import * as userActions from '../../shop/actions/userActions';
 import {HeaderButtons, Item} from 'react-navigation-header-buttons';
 import HeaderButton from '../../components/UI/HeaderButton';
 import { DarkColors, LightColors } from '../../constants/Theme';
+import DangerButton from '../../components/UI/DangerButton'
 
 const ProfileScreen = (props) => {
    const dispatch = useDispatch();
    const switchState = useSelector(state => state.user.switchData)
    const darkModeFromRedux = switchState.darkMode;
-
+   const userId = useSelector(state => state.user.userData.uid)
    const [darkMode, setDarkMode] = useState();
    const [cardMode, setCardMode] = useState();
-   const [cloudStorage, setCloudStorage] = useState();
    const [imageInCardView, setImageInCardView] = useState();
 
 
@@ -24,7 +24,6 @@ const ProfileScreen = (props) => {
       setCardMode(switchState.cardMode)
       setImageInCardView(switchState.imageInCardView)
       setDarkMode(switchState.darkMode)
-      setCloudStorage(switchState.cloudStorage)
    }, [])
 
    const buttonColor = darkModeFromRedux ? DarkColors.primary : LightColors.light
@@ -41,14 +40,13 @@ const ProfileScreen = (props) => {
          )
       })
       
-   }, [cardMode, darkMode, imageInCardView, cloudStorage]);
+   }, [cardMode, darkMode, imageInCardView]);
 
    useFocusEffect(
       useCallback(() => {
          setCardMode(switchState.cardMode)
          setImageInCardView(switchState.imageInCardView)
          setDarkMode(switchState.darkMode)
-         setCloudStorage(switchState.cloudStorage)
       }, [switchState])
    );
 
@@ -56,9 +54,8 @@ const ProfileScreen = (props) => {
       dispatch(userActions.storeSwitches({
          darkMode: darkMode,
          cardMode: cardMode,
-         imageInCardView: imageInCardView,
-         cloudStorage: cloudStorage
-      }))
+         imageInCardView: imageInCardView
+      }, userId))
    }
 
    const switchChangeHandler = (switchName) => {
@@ -69,22 +66,24 @@ const ProfileScreen = (props) => {
          case 'cardMode':
             setCardMode(previousState => !previousState)
             break;
-         case 'cloudStorage':
-            setCloudStorage(previousState => !previousState)
-            break;
          case 'imageInCardView':
             setImageInCardView(previousState => !previousState)
             break;
          default: break;
       }
-      
-      
    }
 
+   const logoutHandler = () => {
+      dispatch(userActions.logout())
+   }
    const screenStyle = darkModeFromRedux ? styles.screenDark : styles.screenLight 
    return (
       <ScrollView style={{...styles.screen, ...screenStyle}}>
          <Text style={styles.category}>User</Text>
+         <DangerButton 
+            onPress={() => logoutHandler()}
+            text="Log Out"
+            />
          <Text style={styles.category}>Layout</Text>
          <SettingsSwitch 
             text='Card view'
@@ -104,13 +103,6 @@ const ProfileScreen = (props) => {
             value={darkMode}
             onValueChange={() => switchChangeHandler('darkMode')}
             hint="When changing this, some items may display the wrong color. Please restart the app if this happens"
-            />
-         <Text style={styles.category}>Storage</Text>
-         <SettingsSwitch 
-            text='Cloud/Local Storage'
-            value={cloudStorage}
-            onValueChange={() => switchChangeHandler('cloudStorage')}
-            hint="If checked items shall be stored on our servers so you can access them on multiple devices. If not we will only store the data on this device"
             />
          <Text style={styles.category}>Privacy Policy</Text>
       </ScrollView>

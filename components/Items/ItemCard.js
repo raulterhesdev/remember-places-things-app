@@ -9,6 +9,7 @@ import CardButton from '../UI/CardButton';
 
 
 const ItemCard = (props) => {
+   
    const individualItem = useSelector(state => state.items.items).filter(item => item.id === props.id)[0];
 
    let itemColor;

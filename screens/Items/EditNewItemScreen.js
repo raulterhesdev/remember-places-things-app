@@ -17,6 +17,11 @@ import {DarkColors, LightColors} from '../../constants/Theme';
 import * as itemsActions from '../../shop/actions/itemActions';
 
 
+import uuid from 'uuid';
+import * as firebase from 'firebase';
+
+
+
 const EditNewItem = (props) => {
    const dispatch = useDispatch();
    
@@ -24,6 +29,7 @@ const EditNewItem = (props) => {
    let editMode = routeParams.editMode ? routeParams.editMode : null;
    const editItem = useSelector(state => state.temp.editItem);
    const darkMode =  useSelector(state => state.user.switchData.darkMode)
+   const userId = useSelector(state => state.user.userData.uid)
 
    const [modalVisible, setModalVisible] = useState(false)
 
@@ -65,15 +71,19 @@ const EditNewItem = (props) => {
       setImagePath(imagePth);
    }
 
-   const saveButtonHandler = () => {
+
+   const saveButtonHandler = async () => {
       if(title.length === 0){
          setTitleTouched(true)
          return
       }
+      let uploadUrl
+      imagePath ? uploadUrl = await uploadImageAsync(imagePath) : imageUrl = ""
+
       if(editMode){
-         dispatch(itemsActions.editItem(title, description, location, imagePath, color, 'userID', editItem.id))
+         dispatch(itemsActions.editItem(userId,title, description, location, uploadUrl, color,  editItem.id))
       } else {
-         dispatch(itemsActions.addItem(title, description, location, imagePath, color, 'userID'))
+         dispatch(itemsActions.addItem(userId,title, description, location, uploadUrl, color ))
       }
       props.navigation.navigate('AllItems');
       setTitle('');
@@ -93,7 +103,7 @@ const EditNewItem = (props) => {
 
    const onDangerButtonHandler = () => {
       if(editMode){
-         dispatch(itemsActions.deleteItem(editItem.id))
+         dispatch(itemsActions.deleteItem(editItem.id, userId))
          setTitle('');
          setTitleTouched(false);
          setLocation();
@@ -198,7 +208,6 @@ const EditNewItem = (props) => {
                <Text style={styles.text}>No image selected. </Text>
                <Text style={styles.text}>Press one of the above buttons to select one</Text>
             </View>
-               
             }
             </View>
             <DangerButton 
@@ -295,3 +304,32 @@ export const editNewOptions = navData => {
       
    }
 }
+
+async function uploadImageAsync(uri) {
+   // Why are we using XMLHttpRequest? See:
+   // https://github.com/expo/expo/issues/2402#issuecomment-443726662
+   const blob = await new Promise((resolve, reject) => {
+     const xhr = new XMLHttpRequest();
+     xhr.onload = function() {
+       resolve(xhr.response);
+     };
+     xhr.onerror = function(e) {
+       console.log(e);
+       reject(new TypeError('Network request failed'));
+     };
+     xhr.responseType = 'blob';
+     xhr.open('GET', uri, true);
+     xhr.send(null);
+   });
+ 
+   const ref = firebase
+     .storage()
+     .ref()
+     .child(uuid.v4());
+   const snapshot = await ref.put(blob);
+ 
+   // We're done with the blob, close and release it
+   blob.close();
+ 
+   return await snapshot.ref.getDownloadURL();
+ }
