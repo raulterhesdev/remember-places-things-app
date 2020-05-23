@@ -20,7 +20,7 @@ const SettingsSwitch = (props) => {
             value={props.value}
             />
          </View>
-         <Text style={{...styles.switchHint,...textStyle}}>{props.hint}</Text>
+         {props.hint ? <Text style={{...styles.switchHint,...textStyle}}>{props.hint}</Text> : null}
       </View>
    )
 }
@@ -29,7 +29,7 @@ export default SettingsSwitch
 
 const styles = StyleSheet.create({
    layout: {
-      marginBottom: 35
+      marginBottom: 15
    },
    switchContainer: {
       width: '100%',

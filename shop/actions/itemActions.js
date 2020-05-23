@@ -6,34 +6,32 @@ export const LOAD_ITEMS = 'LOAD_ITEMS';
 export const EDIT_ITEM = 'EDIT_ITEM';
 export const DELETE_ITEM = 'DELETE_ITEM';
 
-
-
+import * as firebase from 'firebase';
 
 
 
 export const addItem = (userID, title, description, location, imageUri, color ) => {
    return async dispatch => {
+      var database = firebase.database();
       try{
-         const response = await fetch(`${ENV.databaseURL}/notes/${userID}.json`, {
-            method: 'POST',
-            headers: {
-               'Content-Type': 'application/json' 
-            },
-            body: JSON.stringify({
-               title, description, location, imageUri, color, userID
-            })
-         });
-   
-         if(!response.ok){
-            throw new Error ('Something Went Wrong');
+         var postData = {title, description,color, userID};
+         if(location){
+            postData.location = location
          }
+         if(imageUri){
+            postData.imageUri = imageUri
+         }
+         // Get a key for a new Post.
+         var newPostKey = await firebase.database().ref().child(`notes/${userID}`).push().key;
 
-         const responseData = await response.json();
-
+         // Write the new post's data simultaneously in the posts list and the user's post list.
+         var updates = {};
+         updates[`notes/${userID}/${newPostKey}`] = postData;
+         firebase.database().ref().update(updates);
          dispatch({
             type:ADD_ITEM,
             itemData: {
-               id: responseData.name,
+               id: newPostKey,
                title: title,
                description: description, 
                location: location,
@@ -52,21 +50,25 @@ export const addItem = (userID, title, description, location, imageUri, color ) 
 
 export const editItem = (userID,title, description, location, imageUri, color, id) => {
    return async dispatch => {
-      try{
-         const response = await fetch(`${ENV.databaseURL}/notes/${userID}/${id}.json`, {
-            method: 'PATCH',
-            headers: {
-               'Content-Type': 'application/json' 
-            },
-            body: JSON.stringify({
-               title, description, location, imageUri, color, userID
-            })
-         });
-   
-         if(!response.ok){
-            throw new Error ('Something Went Wrong');
+      var database = firebase.database();
+      const editItem =  async (userID, title, description, location, imageUri, color, id) => {
+         // A post entry.
+         var postData = {title, description,color, userID};
+         if(location){
+            postData.location = location
+         }
+         if(imageUri){
+            postData.imageUri = imageUri
          }
 
+         // Write the new post's data simultaneously in the posts list and the user's post list.
+         var updates = {};
+         updates[`notes/${userID}/${id}`] = postData;
+         firebase.database().ref().update(updates);
+      }
+
+      try{
+         await editItem(userID,title, description, location, imageUri, color, id)
          
          dispatch({
             type:EDIT_ITEM,
@@ -88,14 +90,14 @@ export const editItem = (userID,title, description, location, imageUri, color, i
 
 export const deleteItem = (id, userID) => {
    return async dispatch => {
+      var database = firebase.database();
+      const deleteItem = async (userID,id) =>{
+         var updates = {};
+         updates[`notes/${userID}/${id}`] = null;
+         firebase.database().ref().update(updates);
+      }
       try {
-         const response = await fetch(`${ENV.databaseURL}/notes/${userID}/${id}.json`, {
-            method: 'DELETE',
-         });
-   
-         if(!response.ok){
-            throw new Error ('Something Went Wrong');
-         }
+         await deleteItem(userID,id)
          dispatch({
             type:DELETE_ITEM,
             id: id,
@@ -110,27 +112,28 @@ export const deleteItem = (id, userID) => {
 export const fetchItems = (userID) => {
    return async dispatch => {
       try {
-         const response = await fetch(`${ENV.databaseURL}/notes/${userID}.json`);
-         if(!response.ok){
-            throw new Error ('Something Went Wrong');
-         }
-         const responseData = await response.json();
-         const loadedItems = [];
-         for(const key in responseData) {
-            loadedItems.push(new Item(
-               key, 
-               responseData[key].title, 
-               responseData[key].description, 
-               responseData[key].location, 
-               responseData[key].imageUri, 
-               responseData[key].color, 
-               responseData[key].userID)
-               )
-         }
-         dispatch({
-            type:LOAD_ITEMS,
-            itemData: loadedItems
+         var allItemsRef = firebase.database().ref(`notes/${userID}`);
+         allItemsRef.on('value', (snapshot) => {
+            const allItems = snapshot.val()
+            const loadedItems = [];
+            for(const key in allItems) {
+               loadedItems.push(new Item(
+                  key, 
+                  allItems[key].title, 
+                  allItems[key].description, 
+                  allItems[key].location, 
+                  allItems[key].imageUri, 
+                  allItems[key].color, 
+                  allItems[key].userID)
+                  )
+            }
+            dispatch({
+               type:LOAD_ITEMS,
+               itemData: loadedItems
+            })
          })
+         
+         
       }catch (err) {
          throw err
       }

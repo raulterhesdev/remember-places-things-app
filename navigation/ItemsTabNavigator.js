@@ -23,7 +23,7 @@ const ItemsTabNavigator = createMaterialBottomTabNavigator();
 export const ItemsNavigator = (props) => {
    
    const switchData =  useSelector(state => state.user.switchData)
-   const darkMode = switchData.darkMode;
+   const darkMode = switchData ? switchData.darkMode : false;
    // const darkMode = true;
    const backgroundColor = darkMode ? DarkColors.dark : LightColors.primary
    const activeColor = darkMode ? DarkColors.primary : LightColors.light

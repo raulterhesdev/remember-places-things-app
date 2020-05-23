@@ -56,6 +56,7 @@ const ProfileScreen = (props) => {
          cardMode: cardMode,
          imageInCardView: imageInCardView
       }, userId))
+      props.navigation.navigate('AllItems')
    }
 
    const switchChangeHandler = (switchName) => {
@@ -79,12 +80,8 @@ const ProfileScreen = (props) => {
    const screenStyle = darkModeFromRedux ? styles.screenDark : styles.screenLight 
    return (
       <ScrollView style={{...styles.screen, ...screenStyle}}>
-         <Text style={styles.category}>User</Text>
-         <DangerButton 
-            onPress={() => logoutHandler()}
-            text="Log Out"
-            />
-         <Text style={styles.category}>Layout</Text>
+         
+         <Text style={styles.category}>Settings</Text>
          <SettingsSwitch 
             text='Card view'
             value={cardMode}
@@ -95,14 +92,17 @@ const ProfileScreen = (props) => {
             text='Show image in Card view'
             value={imageInCardView}
             onValueChange={() => switchChangeHandler('imageInCardView')}
-
             />
-         <Text style={styles.category}>Color Scheme</Text>
          <SettingsSwitch 
             text='Dark Mode'
             value={darkMode}
             onValueChange={() => switchChangeHandler('darkMode')}
             hint="When changing this, some items may display the wrong color. Please restart the app if this happens"
+            />
+         <Text style={styles.category}>User</Text>
+         <DangerButton 
+            onPress={() => logoutHandler()}
+            text="Log Out"
             />
          <Text style={styles.category}>Privacy Policy</Text>
       </ScrollView>
@@ -127,7 +127,8 @@ const styles = StyleSheet.create({
       fontFamily: 'open-sans-bold',
       fontSize: 18,
       color: Colors.dark,
-      marginBottom: 25,
+      marginBottom: 10,
+      marginTop: 10,
       paddingLeft: 10,
       paddingBottom: 10,
       borderBottomColor: Colors.accent,

@@ -12,22 +12,22 @@ import * as firebase from 'firebase';
 
 
 
-
-export const storeSwitches = (switchData, userId) => {
+export const storeSwitches =  (switchData, userId) => {
    return async dispatch => {
+      var database = firebase.database();
+
+      function writeSwitchData(switchData, userId) {
+         firebase.database().ref('settings/' + userId).set(switchData,
+            function(error) {
+               if (error) {
+                 // The write failed...
+               } else {
+                 // Data saved successfully!
+               }
+            });
+      }
       try {
-         const response = await fetch(`${ENV.databaseURL}/settings/${userId}.json`, {
-            method: 'PATCH',
-            headers: {
-               'Content-Type': 'application/json' 
-            },
-            body: JSON.stringify(switchData)
-         });
-   
-         if(!response.ok){
-            throw new Error ('Something Went Wrong');
-         }
-   
+         writeSwitchData(switchData,userId)
          dispatch({
             type: STORE_SWITCHES,
             switchData: switchData
@@ -39,21 +39,26 @@ export const storeSwitches = (switchData, userId) => {
    }
 }
 
-export const fetchSwitches = (userId) => {
+export const fetchSwitches =  (userId) => {
    return async dispatch => {
       try {
-         const response = await fetch(`${ENV.databaseURL}/settings/${userId}.json`);
-
-         if(!response.ok) {
-            throw new Error('Something Went Wrong!');
-         }
-
-         const responseData = await response.json();
-
-         dispatch({
-            type: STORE_SWITCHES,
-            switchData: responseData
-         })
+         var switchDataRef = firebase.database().ref(`settings/${userId}`);
+         
+         switchDataRef.on('value', (snapshot) => {
+            const switchData = snapshot.val()
+            if(!switchData){
+               dispatch(storeSwitches({
+                  darkMode: false,
+                  cardMode: true,
+                  imageInCardView: false
+               }, userId
+               ))
+            }
+            dispatch({
+               type: STORE_SWITCHES,
+               switchData: switchData
+            })
+         });
       } catch (err) {
          
          throw err;
@@ -63,7 +68,7 @@ export const fetchSwitches = (userId) => {
 
 export const authenticate = (user) => {
    return dispatch => {
-      
+      console.log(user)
       dispatch({
          type: AUTHENTICATE,
          userData: user
@@ -71,58 +76,27 @@ export const authenticate = (user) => {
    }
 }
 
-export const signUp = (email, password, rememberMe) => {
+export const auth = (email, password, rememberMe, isSignup) => {
    return async dispatch => {
-      firebase.auth().createUserWithEmailAndPassword(email, password)
-      .then(
-         // console.log('signup')
-         )
-      .catch(function(error) {
-         // Handle Errors here.
-         var errorCode = error.code;
-         var errorMessage = error.message;
-         console.log(errorCode)
-         // ...
-      });
-      firebase.auth().onAuthStateChanged(function(user) {
-         if (user) {
-            user.sendEmailVerification()
-            .then(function() {
-               // console.log('email sent')
-            }).catch(function(error) {
-               console.log('error')
-            });
-            dispatch(authenticate(user))
-            
-            dispatch(storeSwitches({
-               darkMode: false,
-               cardMode: true,
-               imageInCardView: false
-            }, user.uid))
-         } else {
-            console.log('not logged in')
-         }
-      });
-   }
-}
-
-export const login = (email, password, rememberMe) => {
-   return async dispatch => {
-      firebase.auth().signInWithEmailAndPassword(email, password)
-      .then(
-         // console.log('signin')
-         )
-      .catch(function(error) {
-         // Handle Errors here.
-         var errorCode = error.code;
-         var errorMessage = error.message;
-         console.log(errorCode)
-         // ...
-      });
-
-      firebase.auth().onAuthStateChanged(function(user) {
-         if (user) {
-            console.log(user)
+      if(isSignup){
+         firebase.auth().createUserWithEmailAndPassword(email,password)
+         .catch((error) => {
+            var errorCode = error.code;
+            var errorMessage = error.message;
+            console.log(errorCode)
+            console.log(errorMessage)
+         });
+      } else {
+         firebase.auth().signInWithEmailAndPassword(email, password)
+         .catch((error) => {
+            var errorCode = error.code;
+            var errorMessage = error.message;
+            console.log(errorCode)
+            console.log(errorMessage)
+         });
+      }
+      firebase.auth().onAuthStateChanged((user) =>{
+         if(user) {
             if(rememberMe) {
                dispatch(saveDataToStorage(email, password))
             }
@@ -131,7 +105,7 @@ export const login = (email, password, rememberMe) => {
          } else {
             console.log('not logged in')
          }
-      });
+      })
    }
 }
 
@@ -169,7 +143,7 @@ export const autoLogin = () => {
       }
       const userData = JSON.parse(userDataJSON);
       const {email, password} = userData;
-      dispatch(login(email,password, true))
+      dispatch(auth(email,password, true, false))
       dispatch(setAutoLogin())
    }
 }
@@ -179,5 +153,6 @@ export const setAutoLogin = () => {
       type:SET_AUTO_LOGIN
    }
 }
+
 
 

@@ -22,11 +22,14 @@ const rootReducer = combineReducers({
 
 const store = createStore(rootReducer, applyMiddleware(ReduxThunk));
 
-firebase.initializeApp(ENV.firebaseConfig);
 
+if (!firebase.apps.length) {
+  firebase.initializeApp(ENV.firebaseConfig);
+}
 export default function App() {
   const [fontLoaded, setFontLoaded] = useState(false);
-  
+
+
   // store.dispatch(fetchSwitches())
   const fetchData = () => {
     return Font.loadAsync({

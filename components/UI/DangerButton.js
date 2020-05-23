@@ -1,7 +1,7 @@
 import React from 'react'
 import { StyleSheet, Text, View , Platform} from 'react-native'
 import { TouchableOpacity, TouchableNativeFeedback } from 'react-native-gesture-handler'
-import { color } from 'react-native-reanimated';
+import  Colors  from '../../constants/Colors';
 
 const DangerButton = (props) => {
    let Touchable = TouchableOpacity;
@@ -33,11 +33,13 @@ const styles = StyleSheet.create({
       elevation: 5,
       paddingVertical: 15,
       paddingHorizontal: 45,
-      backgroundColor: '#CB2431',
+      backgroundColor: Colors.primary,
       
    },
    text: {
       fontFamily: 'open-sans-bold',
-      color: 'white'
+      color: 'white',
+      textAlign: 'center',
+      color: Colors.accent
    }
 })
